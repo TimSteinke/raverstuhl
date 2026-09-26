@@ -1,0 +1,41 @@
+// Screenshot driver for development: node scripts/shot.mjs <outdir> [base-url]
+import { chromium } from 'playwright';
+const out = process.argv[2];
+const base = process.argv[3] ?? 'http://127.0.0.1:5173/';
+const browser = await chromium.launch({ args: ['--use-gl=angle', '--use-angle=swiftshader', '--enable-unsafe-swiftshader'] });
+const page = await browser.newPage({ viewport: { width: 1600, height: 1000 }, deviceScaleFactor: 1 });
+const logs = [];
+page.on('console', (m) => logs.push(`[${m.type()}] ${m.text()}`));
+page.on('pageerror', (e) => logs.push(`[pageerror] ${e.message}`));
+await page.goto(base);
+await page.waitForFunction(() => document.querySelector('#loading')?.classList.contains('done'), null, { timeout: 120000 });
+await page.waitForTimeout(6000);
+await page.mouse.move(700, 520);
+await page.waitForTimeout(500);
+await page.screenshot({ path: `${out}/01_overview.png` });
+// Click top site #1 in the list.
+await page.click('#top-box summary');
+await page.click('#top-sites li:first-child');
+await page.waitForSelector('#sidebar .perf', { timeout: 120000 });
+await page.waitForTimeout(5000);
+await page.screenshot({ path: `${out}/02_click.png` });
+await page.click('#t-vis');
+await page.waitForTimeout(2500);
+await page.screenshot({ path: `${out}/03_vis.png` });
+const sb = await page.$('#sidebar');
+await sb.screenshot({ path: `${out}/04_sidebar.png` });
+await page.evaluate(() => { const s = document.querySelector('#sidebar'); s.scrollTop = s.scrollHeight; });
+await page.waitForTimeout(300);
+await sb.screenshot({ path: `${out}/05_sidebar_bottom.png` });
+// Disturbed-people layer and 3D terrain.
+await page.click('#sidebar .close');
+await page.click('[data-mode="cost"]');
+await page.click('#t-vis');
+await page.waitForTimeout(1500);
+await page.screenshot({ path: `${out}/06_cost.png` });
+await page.click('[data-mode="rating"]');
+await page.click('#t-3d');
+await page.waitForTimeout(9000);
+await page.screenshot({ path: `${out}/07_3d.png` });
+console.log(logs.filter((l) => !l.includes('[debug]')).slice(0, 40).join('\n'));
+await browser.close();

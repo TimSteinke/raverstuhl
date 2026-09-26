@@ -1,0 +1,13 @@
+# Kaiserstuhl + Freiburg im Breisgau and the Dreisam valley.
+# To grow the area: add ALKIS NAS zips (one per Gemarkung, from opengeodata.lgl-bw.de) to a folder listed
+# below, or let `uv run geoacoustics alkis-fill configs/breisgau.yaml` fetch the ones that fill gaps.
+# Then run `uv run geoacoustics build configs/breisgau.yaml`; missing DGM1/DOM1/LoD2 tiles are downloaded.
+name: breisgau
+title: Kaiserstuhl · Freiburg
+
+aoi:
+  alkis_dirs: [geodata_kaiserstuhl, geodata_freiburg, data/raw/alkis]  # data/raw/alkis: from `geoacoustics alkis-fill`
+
+data:
+  # Folders searched for LGL tiles, in addition to data.lgl_download_dir.
+  lgl_tile_dirs: [geodata_kaiserstuhl]

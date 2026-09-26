@@ -1,0 +1,34 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>raverstuhl.lol · data coverage</title>
+    <style>
+      html, body { margin: 0; height: 100%; background: #05060b; color: #e8ecff; font: 12px/1.45 'JetBrains Mono', ui-monospace, monospace; }
+      #map { position: absolute; inset: 0; }
+      #info { position: absolute; top: 12px; left: 12px; width: 300px; padding: 12px 14px; background: rgba(9, 11, 20, 0.85); border: 1px solid rgba(140, 160, 220, 0.25); border-radius: 8px; }
+      #info h1 { font-size: 13px; letter-spacing: 0.15em; margin: 0 0 8px; }
+      #info .sw { display: inline-block; width: 10px; height: 10px; margin-right: 6px; vertical-align: -1px; border-radius: 2px; }
+      #info label { display: block; cursor: pointer; }
+      #hover { margin-top: 8px; color: #a3acc8; min-height: 3em; }
+      pre { margin: 6px 0; color: #a3acc8; white-space: pre-wrap; }
+    </style>
+  </head>
+  <body>
+    <div id="map"></div>
+    <div id="info">
+      <h1>DATA COVERAGE</h1>
+      <div><span class="sw" style="background:#00e5ff66;border:1px solid #00e5ff"></span>Gemarkung (ALKIS parcels)</div>
+      <div><span class="sw" style="background:#ff2bd6"></span>gap enclosed by Gemarkungen</div>
+      <div><span class="sw" style="border:1px solid #3cf29a"></span>LGL tile: DGM1 + DOM1 + LoD2 ok</div>
+      <div><span class="sw" style="border:1px solid #ffd400"></span>LGL tile: outside BW (no data)</div>
+      <div><span class="sw" style="border:1px solid #ff4d6d"></span>LGL tile: missing, not downloaded</div>
+      <label><input type="checkbox" id="t-boxes" /> AOI boxes (bbox per Gemarkung)</label>
+      <label><input type="checkbox" id="t-tiles" checked /> tile grid</label>
+      <pre id="summary"></pre>
+      <div id="hover">hover a Gemarkung or tile</div>
+    </div>
+    <script type="module" src="/src/coverage.ts"></script>
+  </body>
+</html>

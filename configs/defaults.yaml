@@ -1,0 +1,82 @@
+# Model parameters shared by all areas. An area config (configs/<area>.yaml) sets the area and
+# data paths and may override any key below; nested keys are merged.
+
+data:
+  lgl_download_dir: data/raw/lgl   # new LGL tiles are downloaded here
+  raw_dir: data/raw                # OSM tile cache, Copernicus DEM
+  work_dir: data/interim/{name}
+  out_dir: data/processed/{name}
+  web_dir: web/public/data/{name}
+
+# Mid-sized rig for ~100 people, omnidirectional subs (no cardioid). Music-averaged sound power (dB re 1 pW).
+# Roughly 95–100 dB in the 63 Hz band at the dancefloor, ~15 m from the stacks.
+source:
+  bands_hz:     [31.5,  63,  125,  250,  500]
+  lw_db:        [118,  125,  122,  116,  112]
+  height_m: 1.5
+
+propagation:
+  terrain_res_m: 10
+  step_m: 10            # profile sampling step
+  max_range_m: 8000     # receivers further away are ignored
+  near_field_m: 1500    # 25 m receiver cells inside this range, 250 m clusters beyond
+  buffer_m: 8000        # terrain + receivers are loaded this far beyond the core area
+  use_kmet: true        # ISO 9613-2 downwind/inversion correction (night-time worst case)
+  ground_g: [1.0, 1.0, 0.5]   # ISO ground factor: source region, middle, receiver region (0 hard – 1 porous)
+  receiver_height_m: 4.0
+
+impact:
+  # Impact is judged indoors (bedroom, window tilted open): faint sound outside is acceptable.
+  # indoor level = outdoor façade level − facade_reduction_db.
+  # Detection threshold per band: max(hearing threshold ISO 226, indoor background − rhythm_detect_db).
+  facade_reduction_db:  [ 5.0,  7.0, 10.0, 12.0, 15.0]   # tilted window; low frequencies pass easily
+  hearing_threshold_db: [59.5, 37.5, 22.1, 11.4,  4.4]
+  indoor_background_db: [38.0, 30.0, 22.0, 16.0, 12.0]   # quiet bedroom at night (rough)
+  rhythm_detect_db: 5.0    # rhythmic bass is noticeable a few dB below the background
+  faint_db: 3.0            # up to this much above threshold counts as barely audible: no penalty
+  annoying_db: 15.0        # full penalty from here on
+  max_worst_db: 10.0       # hard limit: no occupied building may get more than this above threshold
+  cost_half_people: 10.0   # noise score = 0.5 ** (cost / cost_half_people); cost in weighted people
+
+candidates:
+  grid_res_m: 2
+  max_ndsm_m: 1.0          # vegetation/object height that still counts as open
+  max_roughness_m: 0.35    # local std of nDSM (vineyards, orchards, scrub)
+  max_slope_deg: 7.0
+  min_width_m: 20          # morphological opening diameter: a disc this wide must fit
+  min_area_m2: 700         # ~100 people + rig + margin
+  max_elongation: 5        # long/short side of the min. rotated rectangle (drops levees, road verges)
+  # Organisers must get there by car: only ways a vehicle can use count (tracks and up, no footpaths).
+  max_vehicle_dist_m: 150  # dancefloor centre at most this far from a vehicle way
+  access_full_m: 50        # full access score up to here, falling to 0.3 at max_vehicle_dist_m
+  min_major_road_dist_m: 50    # not right at the roadside; being seen is handled by `visibility`
+  min_minor_road_dist_m: 60    # tertiary, unclassified, residential
+  exclude_protected: true
+
+visibility:
+  # Anyone with a line of sight sees the lights and the crowd: drivers, and people at home.
+  observers:
+    major_roads:
+      classes: [motorway, motorway_link, trunk, trunk_link, primary, primary_link, secondary, secondary_link]
+      spacing_m: 50        # observer spacing along the roads
+      eye_height_m: 1.5
+    medium_roads:
+      classes: [tertiary, tertiary_link]
+      spacing_m: 50
+      eye_height_m: 1.5
+    homes:                 # occupied residential buildings, lodging and care homes
+      cell_m: 50           # one observer per 50 m cell with such buildings
+      eye_height_m: 4.0    # upper-floor window
+      skip_obstacles_m: 20 # ignore the observer's own and adjacent buildings
+  res_m: 4
+  target_height_m: 3.0     # people, rig, lights above the ground
+  min_obstacle_m: 4.0      # nDSM taller than this blocks the view (trees, buildings)
+  max_range_m: 1500
+
+scoring:
+  heatmap_res_m: 50
+  weights: {noise: 0.55, access: 0.2, size: 0.1, hidden: 0.15}
+  visible_ok_frac: 0.1     # hidden score 1 up to this share of the area visible from roads …
+  visible_bad_frac: 0.6    # … falling to 0.2 at this share
+  size_full_m2: 3000
+  site_merge_m: 300        # candidates closer than this to a better one are merged into its site

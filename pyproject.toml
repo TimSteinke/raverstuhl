@@ -1,0 +1,56 @@
+[project]
+name = "geoacoustics"
+version = "0.1.0"
+description = "Find remote outdoor rave spots from open geodata and outdoor sound propagation modelling"
+readme = "README.md"
+authors = [
+    { name = "Tim Steinke" }
+]
+requires-python = ">=3.12"
+dependencies = [
+    "geopandas>=1.1.4",
+    "httpx>=0.28.1",
+    "lxml>=6.1.3",
+    "mapbox-vector-tile>=2.2.0",
+    "numba>=0.67.0",
+    "numpy>=2.5.3",
+    "pandas>=3.0.6",
+    "pillow>=12.3.0",
+    "pyarrow>=25.0.1",
+    "pyogrio>=0.13.0",
+    "pyproj>=3.8.0",
+    "pyyaml>=6.0.3",
+    "rasterio>=1.5.1",
+    "rioxarray>=0.23.0",
+    "scipy>=1.18.1",
+    "shapely>=2.1.2",
+    "tqdm>=4.70.1",
+    "xarray>=2026.7.0",
+]
+
+[project.scripts]
+geoacoustics = "geoacoustics.cli:main"
+
+[build-system]
+requires = ["uv_build>=0.8.14,<0.9.0"]
+build-backend = "uv_build"
+
+[tool.uv]
+# Never pick up an active conda env or system Python; keep this project self-contained.
+python-preference = "only-managed"
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+
+[tool.ruff]
+line-length = 100
+
+[dependency-groups]
+dev = [
+    "pytest>=9.1.1",
+    "ruff>=0.16.8",
+]
+
+[tool.ruff.lint]
+select = ["E", "F", "I", "B", "UP"]
+ignore = ["E731", "E501"]

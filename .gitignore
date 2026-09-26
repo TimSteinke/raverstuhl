@@ -1,0 +1,14 @@
+.venv/
+__pycache__/
+*.pyc
+.pytest_cache/
+.ruff_cache/
+
+# Geodata (large, re-downloadable)
+data/
+geodata_*/
+*.part
+
+# Tracked here even though the global ~/.gitignore excludes them
+!CLAUDE.md
+!docs/
